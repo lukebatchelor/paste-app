@@ -36,3 +36,4 @@ yarn-error.log*
 .env
 database.db
 *.js.map
+uploads

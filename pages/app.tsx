@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Grid,
   Box,
@@ -13,6 +13,10 @@ import {
   Toolbar,
   InputBase,
   Avatar,
+  Divider,
+  ListItemIcon,
+  Menu,
+  MenuItem,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -25,6 +29,8 @@ import { styled, alpha } from '@material-ui/core/styles';
 import { Controller, useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/client';
 import { useRouter } from 'next/router';
+import { PersonAdd, Settings, Logout } from '@material-ui/icons';
+import { useDropzone } from 'react-dropzone';
 
 type FormValues = {
   messageText: string;
@@ -43,6 +49,14 @@ const MessageBubble = styled(Paper)({
   backgroundColor: '#5c6bc0',
   color: 'white',
   borderRadius: '8px',
+  maxWidth: '80%',
+  overflowWrap: 'break-word',
+});
+const MessageImage = styled('img')({
+  maxWidth: '100%',
+  display: 'block',
+  marginLeft: 'auto',
+  marginRight: 'auto',
 });
 const Form = styled('form')({
   display: 'flex',
@@ -50,9 +64,16 @@ const Form = styled('form')({
   width: '100%',
 });
 const WhiteBorderTextField = styled(TextField)`
+  color: white !important;
   & .MuiOutlinedInput-root fieldset {
     border-color: #d1c4e9 !important;
     border-radius: 8px;
+  }
+  & .MuiInputBase-input {
+    color: rgba(200, 200, 200, 0.8);
+  }
+  & .Mui-disabled {
+    -webkit-text-fill-color: rgba(200, 200, 200, 0.8);
   }
 `;
 const SendButton = styled(Fab)`
@@ -103,36 +124,60 @@ export default function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [session, loading] = useSession();
   const router = useRouter();
-  const { handleSubmit, control, reset, watch } = useForm<FormValues>({ defaultValues });
+  const { handleSubmit, control, reset, watch, setValue } = useForm<FormValues>({ defaultValues });
   const messageText = watch('messageText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [uploadedImg, setUploadedImg] = useState<File>(null);
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    setUploadedImg(file);
+  }, []);
+  const { getRootProps, getInputProps, inputRef } = useDropzone({ onDrop, accept: 'image/*' });
 
   const refresh = () => {
     return fetch('/api/messages')
       .then((res) => res.json())
       .then((data) => {
         setMessages(data.messages);
+        endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
       });
   };
   useEffect(() => {
     refresh();
   }, []);
 
-  const openUploadModal = () => {};
+  const openUploadModal = () => inputRef.current.click();
+  const uploadImage = () => {
+    const formData = new FormData();
+    formData.set('file', uploadedImg, uploadedImg.name);
+    fetch('/api/upload', { method: 'POST', body: formData })
+      .then((res) => res.json())
+      .then((_) => {
+        setUploadedImg(null);
+        refresh();
+      })
+      .catch((err) => setUploadedImg(null));
+  };
+
   const onSubmit = (data: FormValues) => {
+    if (!!uploadedImg) return uploadImage();
+    if (data?.messageText?.length === 0) return openUploadModal();
+
     const { messageText } = data;
-    if (messageText.length === 0) return openUploadModal();
     const body = JSON.stringify({ text: messageText });
     const options = { method: 'POST', body, headers: { 'Content-Type': 'application/json' } };
     fetch('/api/messages', options)
       .then((res) => res.json())
       .then(() => {
         reset();
-        refresh().then(() => {
-          endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-        });
+        refresh();
       });
   };
+  const handleClose = () => setMenuOpen(false);
+  const handleOpen = () => setMenuOpen(true);
+  const {} = getRootProps();
 
   if (!loading && !session) router.push('/api/auth/signin');
 
@@ -150,10 +195,49 @@ export default function App() {
       </Head>
       <AppBar position="fixed" sx={{ backgroundColor: '#4a148c' }}>
         <Toolbar>
-          <IconButton size="large" edge="start" color="inherit" aria-label="open drawer" sx={{ mr: 2 }}>
+          <Menu
+            anchorEl={buttonRef.current}
+            open={menuOpen}
+            onClose={handleClose}
+            onClick={handleClose}
+            PaperProps={{
+              elevation: 0,
+              sx: {
+                overflow: 'visible',
+                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                mt: 1.5,
+                '&:before': {
+                  content: '""',
+                  display: 'block',
+                  position: 'absolute',
+                  top: 0,
+                  left: 14,
+                  width: 10,
+                  height: 10,
+                  bgcolor: 'background.paper',
+                  transform: 'translateY(-50%) rotate(45deg)',
+                  zIndex: 0,
+                },
+              },
+            }}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          >
+            <MenuItem>Profile</MenuItem>
+            <MenuItem>Secret Pastes</MenuItem>
+            <MenuItem>Logout</MenuItem>
+          </Menu>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            ref={buttonRef}
+            onClick={handleOpen}
+          >
             <Avatar src={session?.user?.image} />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" noWrap component="div" sx={{ ml: 2, flexGrow: 1 }}>
             {session?.user?.name}
           </Typography>
           <Search>
@@ -186,7 +270,16 @@ export default function App() {
             alignItems="flex-end"
           >
             {messages.map((message) => (
-              <MessageBubble key={message.id}>{message.textBody}</MessageBubble>
+              <MessageBubble key={message.id}>
+                {message.imageName ? (
+                  <MessageImage
+                    src={`${process.env.NEXT_PUBLIC_ASSETS_URL}/${message.imageName}`}
+                    alt={message.textBody}
+                  />
+                ) : (
+                  message.textBody
+                )}
+              </MessageBubble>
             ))}
             <Box ref={endOfMessagesRef}></Box>
           </Box>
@@ -209,15 +302,17 @@ export default function App() {
                       handleSubmit(onSubmit)();
                     }
                   }}
+                  disabled={!!uploadedImg}
                   onChange={onChange}
                   onBlur={onBlur}
-                  value={value}
+                  value={uploadedImg ? '[ Image Ready ]' : value}
                 />
               )}
             />
             <SendButton type="submit" aria-label="Add" sx={{ ml: 1, flexShrink: 0, color: '#5c6bc0' }}>
-              {messageText.length === 0 ? <AddIcon /> : <SendIcon />}
+              {messageText.length === 0 && !uploadedImg ? <AddIcon /> : <SendIcon />}
             </SendButton>
+            <input {...getInputProps()} />
           </Form>
         </Grid>
       </Grid>
