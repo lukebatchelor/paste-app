@@ -31,6 +31,7 @@ import { useSession } from 'next-auth/client';
 import { useRouter } from 'next/router';
 import { PersonAdd, Settings, Logout } from '@material-ui/icons';
 import { useDropzone } from 'react-dropzone';
+import Link from 'next/link';
 
 type FormValues = {
   messageText: string;
@@ -274,6 +275,10 @@ export default function App() {
               <MessageBubble key={message.id}>
                 {message.imageName ? (
                   <MessageImage src={`${mediaUrl}/${message.imageName}`} alt={message.textBody} />
+                ) : validURL(message.textBody) ? (
+                  <a href={message.textBody} target="_blank" rel="noopener noreferrer">
+                    {message.textBody}
+                  </a>
                 ) : (
                   message.textBody
                 )}
@@ -316,4 +321,17 @@ export default function App() {
       </Grid>
     </Box>
   );
+}
+
+function validURL(str) {
+  var pattern = new RegExp(
+    '^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i'
+  ); // fragment locator
+  return !!pattern.test(str);
 }
