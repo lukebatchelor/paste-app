@@ -4,5 +4,6 @@
   "files.associations": {
     "tsconfig.json": "jsonc",
     "server.tsconfig.json": "jsonc"
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

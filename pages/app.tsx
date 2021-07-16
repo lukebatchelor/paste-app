@@ -1,12 +1,29 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
-import { Grid, Box, Typography, TextField, Fab, Paper } from '@material-ui/core';
+import {
+  Grid,
+  Box,
+  Typography,
+  TextField,
+  Fab,
+  Paper,
+  AppBar,
+  IconButton,
+  Toolbar,
+  InputBase,
+  Avatar,
+} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import MenuIcon from '@material-ui/icons/Menu';
+import SearchIcon from '@material-ui/icons/Search';
 import SendIcon from '@material-ui/icons/Send';
 import { Message } from '.prisma/client';
-import styled from '@emotion/styled';
+// import styled from '@emotion/styled';
+import { styled, alpha } from '@material-ui/core/styles';
+
 import { Controller, useForm } from 'react-hook-form';
+import { useSession } from 'next-auth/client';
 
 type FormValues = {
   messageText: string;
@@ -34,11 +51,12 @@ const Form = styled('form')({
 const WhiteBorderTextField = styled(TextField)`
   & .MuiOutlinedInput-root fieldset {
     border-color: #673ab7 !important;
+    border-radius: 8px;
   }
 `;
 const SendButton = styled(Fab)`
-  color: white;
-  background-color: #5c6bc0;
+  color: white !important;
+  background-color: #5c6bc0 !important;
 `;
 const Title = styled(Typography)`
   color: #5c6bc0;
@@ -46,8 +64,43 @@ const Title = styled(Typography)`
   font-size: 2.5rem;
 `;
 
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: theme.spacing(1),
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    width: '0ch',
+    '&:focus': {
+      width: '17ch',
+    },
+  },
+}));
+
 export default function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
+  const [session, loading] = useSession();
   const { handleSubmit, control, reset, watch } = useForm<FormValues>({ defaultValues });
   const messageText = watch('messageText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -91,14 +144,25 @@ export default function App() {
         <link rel="manifest" href="/manifest.json" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
+      <AppBar position="fixed">
+        <Toolbar>
+          <IconButton size="large" edge="start" color="inherit" aria-label="open drawer" sx={{ mr: 2 }}>
+            <Avatar src={session?.user?.image} />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {session?.user?.name}
+          </Typography>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
+          </Search>
+        </Toolbar>
+      </AppBar>
 
       <Grid container direction="column" justifyContent="space-between" flexWrap="nowrap" p={2} height={'100%'}>
-        <Grid item display="flex" justifyContent="center" alignItems="center">
-          <Image src="/android-chrome-192x192.png" alt="Paste App logo" width="40px" height="40px" />
-          <Title variant="h4" ml={2}>
-            Paste App
-          </Title>
-        </Grid>
+        <Grid item mt={4} />
         <Grid
           item
           flexGrow={1}
