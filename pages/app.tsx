@@ -166,7 +166,7 @@ export default function App() {
       </AppBar>
 
       <Grid container direction="column" justifyContent="space-between" flexWrap="nowrap" p={2} height={'100%'}>
-        <Grid item mt={4} />
+        <Grid item mt="70px" />
         <Grid
           item
           flexGrow={1}
@@ -174,7 +174,7 @@ export default function App() {
           flexDirection="column"
           border="1px solid #d1c4e9"
           borderRadius={4}
-          maxHeight="70vh"
+          maxHeight="100%"
           overflow="auto"
         >
           <Box
