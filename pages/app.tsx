@@ -44,13 +44,11 @@ export default function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
   const { handleSubmit, control, reset } = useForm<FormValues>({ defaultValues });
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   const refresh = () => {
     return fetch('/api/messages')
       .then((res) => res.json())
       .then((data) => {
-        console.log('here', { data });
         setMessages(data.messages);
       });
   };
@@ -114,7 +112,7 @@ export default function App() {
           </Box>
         </Grid>
         <Grid item mt={2} display="flex" alignItems="center">
-          <Form noValidate onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+          <Form noValidate onSubmit={handleSubmit(onSubmit)}>
             <Controller
               control={control}
               name={'messageText'}
@@ -128,7 +126,6 @@ export default function App() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      console.log('here', formRef.current);
                       handleSubmit(onSubmit)();
                     }
                   }}
