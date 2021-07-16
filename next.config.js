@@ -1,7 +1,8 @@
+const withPWA = require('next-pwa');
 const { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_SERVER } = require('next/constants');
 
-module.exports = (phase) => {
-  // variables are only required at run time
+module.exports = module.exports = withPWA((phase) => {
+  // variables are only required at run time - not static build time
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_SERVER) {
     const requiredRuntimeVars = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'NEXTAUTH_URL', 'DATABASE_URL'];
     const missingVars = requiredRuntimeVars.filter((envVar) => !process.env[envVar]);
@@ -15,5 +16,8 @@ module.exports = (phase) => {
 
   return {
     reactStrictMode: true,
+    pwa: {
+      dest: 'public',
+    },
   };
-};
+});

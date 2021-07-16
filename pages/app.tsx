@@ -39,6 +39,11 @@ const SendButton = styled(Fab)`
   color: white;
   background-color: #5c6bc0;
 `;
+const Title = styled(Typography)`
+  color: #5c6bc0;
+  font-weight: 600;
+  font-size: 2.5rem;
+`;
 
 export default function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
@@ -75,23 +80,27 @@ export default function App() {
     <Box height="100%">
       <Head>
         <title>Paste App</title>
+        <meta name="application-name" content="Days Since" />
+        <meta name="apple-mobile-web-app-title" content="Days Since" />
         <meta name="description" content="A simple app for sharing your clipboard between two devices" />
-        <link rel="icon" href="/favicon.ico" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
 
-      <Grid container direction="column" justifyContent="space-between" p={2} height={'100%'}>
+      <Grid container direction="column" justifyContent="space-between" flexWrap="nowrap" p={2} height={'100%'}>
         <Grid item display="flex" justifyContent="center" alignItems="center">
           <Image src="/android-chrome-192x192.png" alt="Paste App logo" width="40px" height="40px" />
-          <Typography variant="h4" ml={2} color="white">
+          <Title variant="h4" ml={2}>
             Paste App
-          </Typography>
+          </Title>
         </Grid>
         <Grid
           item
           flexGrow={1}
           display="flex"
           flexDirection="column"
-          mt={2}
           border="1px solid #673ab7"
           borderRadius={4}
           maxHeight="70vh"
