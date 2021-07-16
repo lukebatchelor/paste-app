@@ -24,6 +24,7 @@ import { styled, alpha } from '@material-ui/core/styles';
 
 import { Controller, useForm } from 'react-hook-form';
 import { useSession } from 'next-auth/client';
+import { useRouter } from 'next/router';
 
 type FormValues = {
   messageText: string;
@@ -50,7 +51,7 @@ const Form = styled('form')({
 });
 const WhiteBorderTextField = styled(TextField)`
   & .MuiOutlinedInput-root fieldset {
-    border-color: #673ab7 !important;
+    border-color: #d1c4e9 !important;
     border-radius: 8px;
   }
 `;
@@ -101,6 +102,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [session, loading] = useSession();
+  const router = useRouter();
   const { handleSubmit, control, reset, watch } = useForm<FormValues>({ defaultValues });
   const messageText = watch('messageText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -132,6 +134,8 @@ export default function App() {
       });
   };
 
+  if (!loading && !session) router.push('/api/auth/signin');
+
   return (
     <Box height="100%">
       <Head>
@@ -144,7 +148,7 @@ export default function App() {
         <link rel="manifest" href="/manifest.json" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
-      <AppBar position="fixed">
+      <AppBar position="fixed" sx={{ backgroundColor: '#4a148c' }}>
         <Toolbar>
           <IconButton size="large" edge="start" color="inherit" aria-label="open drawer" sx={{ mr: 2 }}>
             <Avatar src={session?.user?.image} />
@@ -168,7 +172,7 @@ export default function App() {
           flexGrow={1}
           display="flex"
           flexDirection="column"
-          border="1px solid #673ab7"
+          border="1px solid #d1c4e9"
           borderRadius={4}
           maxHeight="70vh"
           overflow="auto"
@@ -211,7 +215,7 @@ export default function App() {
                 />
               )}
             />
-            <SendButton type="submit" aria-label="Add" size="small" sx={{ ml: 1, flexShrink: 0, color: '#5c6bc0' }}>
+            <SendButton type="submit" aria-label="Add" sx={{ ml: 1, flexShrink: 0, color: '#5c6bc0' }}>
               {messageText.length === 0 ? <AddIcon /> : <SendIcon />}
             </SendButton>
           </Form>
