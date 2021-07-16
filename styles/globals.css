@@ -4,8 +4,12 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
     Helvetica Neue, sans-serif;
-  min-height: 100vh;
+  height: 100%;
   background: #009688;
+}
+
+#__next {
+  height: 100%;
 }
 
 a {

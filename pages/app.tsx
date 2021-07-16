@@ -72,14 +72,14 @@ export default function App() {
   };
 
   return (
-    <div>
+    <Box height="100%">
       <Head>
         <title>Paste App</title>
         <meta name="description" content="A simple app for sharing your clipboard between two devices" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Grid container direction="column" justifyContent="space-between" p={2} minHeight={'100vh'}>
+      <Grid container direction="column" justifyContent="space-between" p={2} height={'100%'}>
         <Grid item display="flex" justifyContent="center" alignItems="center">
           <Image src="/android-chrome-192x192.png" alt="Paste App logo" width="40px" height="40px" />
           <Typography variant="h4" ml={2} color="white">
@@ -141,6 +141,6 @@ export default function App() {
           </Form>
         </Grid>
       </Grid>
-    </div>
+    </Box>
   );
 }

@@ -16,7 +16,7 @@
     "release:pull": "curl $npm_package_repository_url/releases/download/v$npm_package_version/release.tgz -sL -o release.tgz; tar -zxvf release.tgz",
     "postrelease:cut": "git commit -am \"New release: $npm_package_version\"",
     "release:wait": "until $(curl --output /dev/null --silent --head --fail $npm_package_repository_url/releases/download/v$npm_package_version/release.tgz); do printf '.' ; sleep 5 ; done",
-    "deploy": "yarn release:cut && git push && yarn release:wait && ssh root@lbat.ch \"source ~/.zshrc && cd /home/lbatch/sites/$npm_package_name && git pull && yarn --production && yarn release:pull && yarn prisma migrate deploy && pm2 restart $npm_package_name\""
+    "deploy": "yarn release:cut && git push && yarn release:wait && ssh root@lbat.ch \"source ~/.zshrc && cd /home/lbatch/sites/$npm_package_name && git pull && yarn --production && yarn release:pull && yarn prisma generate && yarn prisma migrate deploy && pm2 restart $npm_package_name\""
   },
   "dependencies": {
     "@emotion/react": "^11.4.0",
