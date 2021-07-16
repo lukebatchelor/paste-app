@@ -53,7 +53,8 @@ const MessageBubble = styled(Paper)({
   overflowWrap: 'break-word',
 });
 const MessageImage = styled('img')({
-  maxWidth: '100%',
+  maxWidth: '50vw',
+  maxHeight: '40vh',
   display: 'block',
   marginLeft: 'auto',
   marginRight: 'auto',
