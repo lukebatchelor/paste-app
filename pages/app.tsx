@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { Grid, Box, Typography, TextField, Fab, Paper } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import SendIcon from '@material-ui/icons/Send';
 import { Message } from '.prisma/client';
 import styled from '@emotion/styled';
 import { Controller, useForm } from 'react-hook-form';
@@ -47,7 +48,8 @@ const Title = styled(Typography)`
 
 export default function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
-  const { handleSubmit, control, reset } = useForm<FormValues>({ defaultValues });
+  const { handleSubmit, control, reset, watch } = useForm<FormValues>({ defaultValues });
+  const messageText = watch('messageText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   const refresh = () => {
@@ -61,9 +63,10 @@ export default function App() {
     refresh();
   }, []);
 
+  const openUploadModal = () => {};
   const onSubmit = (data: FormValues) => {
     const { messageText } = data;
-    if (!messageText) return;
+    if (messageText.length === 0) return openUploadModal();
     const body = JSON.stringify({ text: messageText });
     const options = { method: 'POST', body, headers: { 'Content-Type': 'application/json' } };
     fetch('/api/messages', options)
@@ -145,7 +148,7 @@ export default function App() {
               )}
             />
             <SendButton type="submit" aria-label="Add" size="small" sx={{ ml: 1, flexShrink: 0, color: '#5c6bc0' }}>
-              <AddIcon />
+              {messageText.length === 0 ? <AddIcon /> : <SendIcon />}
             </SendButton>
           </Form>
         </Grid>
