@@ -32,6 +32,7 @@ import { useRouter } from 'next/router';
 import { PersonAdd, Settings, Logout } from '@material-ui/icons';
 import { useDropzone } from 'react-dropzone';
 import Link from 'next/link';
+import { Gluejar } from '@charliewilco/gluejar';
 
 type FormValues = {
   messageText: string;
@@ -130,6 +131,7 @@ export default function App() {
   const messageText = watch('messageText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const appRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [uploadedImg, setUploadedImg] = useState<File>(null);
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -179,6 +181,13 @@ export default function App() {
   };
   const handleClose = () => setMenuOpen(false);
   const handleOpen = () => setMenuOpen(true);
+  const onPaste = async (paste) => {
+    if (uploadedImg) return;
+    const blobUrl = paste.images[0];
+    const file = await blobUrlToFile(blobUrl);
+    if (file) setUploadedImg(file);
+    paste.images = [];
+  };
   const mediaUrl = process.env.NEXT_PUBLIC_ASSETS_URL || 'https://media.paste.lbat.ch';
 
   if (!loading && !session) router.push('/api/auth/signin');
@@ -279,6 +288,10 @@ export default function App() {
                   <a href={message.textBody} target="_blank" rel="noopener noreferrer">
                     {message.textBody}
                   </a>
+                ) : !!isCodeBlock(message.textBody) ? (
+                  <pre>
+                    <code>{isCodeBlock(message.textBody)[1]}</code>
+                  </pre>
                 ) : (
                   message.textBody
                 )}
@@ -319,6 +332,7 @@ export default function App() {
           </Form>
         </Grid>
       </Grid>
+      <Gluejar onPaste={onPaste} onError={(err) => console.error(err)} container={appRef.current} />
     </Box>
   );
 }
@@ -334,4 +348,17 @@ function validURL(str) {
     'i'
   ); // fragment locator
   return !!pattern.test(str);
+}
+
+// attempts to extract a codeblock out of of the string. Can be used for testing
+// or parsing
+function isCodeBlock(str) {
+  return /```\n((.|\n)+?)\n```\n?$/.exec(str);
+}
+
+async function blobUrlToFile(blobUrl: string) {
+  if (!blobUrl) return null;
+  const blob = await fetch(blobUrl).then((res) => res.blob());
+  const file = new File([blob], 'image.png'); // is it a png??
+  return file;
 }
