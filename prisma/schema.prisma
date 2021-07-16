@@ -7,8 +7,22 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
 }
+
+model Message {
+  id        String   @id @default(cuid())
+  userId    String
+  textBody  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+//////////////////////////////////////////////////////////////////////////
+////////////// Google auth and sessions /////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 
 model Account {
   id                 String    @id @default(cuid())
@@ -47,6 +61,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
+  TextPaste     Message[]
 }
 
 model VerificationRequest {

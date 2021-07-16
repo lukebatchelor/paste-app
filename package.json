@@ -15,18 +15,22 @@
     "release:create": "tar -cvzf release.tgz ./.next",
     "release:pull": "curl $npm_package_repository_url/releases/download/v$npm_package_version/release.tgz -sL -o release.tgz; tar -zxvf release.tgz",
     "postrelease:cut": "git commit -am \"New release: $npm_package_version\"",
-    "release:wait": "until $(curl --output /dev/null --silent --head --fail $npm_package_repository_url/releases/download/v$npm_package_version/release.tgz); do printf '.' ; sleep 5 ; done"
+    "release:wait": "until $(curl --output /dev/null --silent --head --fail $npm_package_repository_url/releases/download/v$npm_package_version/release.tgz); do printf '.' ; sleep 5 ; done",
+    "deploy": "yarn release:cut && git push && yarn release:wait && ssh root@lbat.ch \"source ~/.zshrc && cd /home/lbatch/sites/$npm_package_name && git pull && yarn --production && yarn release:pull && yarn prisma migrate deploy && pm2 restart $npm_package_name\""
   },
   "dependencies": {
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
+    "@material-ui/core": "^5.0.0-beta.0",
+    "@material-ui/icons": "^5.0.0-beta.0",
     "@next-auth/prisma-adapter": "^0.5.2",
     "@prisma/client": "^2.26.0",
     "next": "11.0.1",
     "next-auth": "^3.27.3",
     "next-pwa": "^5.2.23",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-hook-form": "^6.4.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.14",

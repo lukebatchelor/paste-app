@@ -21,7 +21,9 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "./typings/api.d.ts",
+    "./typings/next-auth.d.ts"
   ],
   "exclude": [
     "node_modules"
