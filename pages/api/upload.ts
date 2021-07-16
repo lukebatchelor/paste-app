@@ -18,19 +18,24 @@ const handler = async (req, res) => {
   const form = new formidable.IncomingForm();
   form.uploadDir = process.env.UPLOAD_DIR;
   form.keepExtensions = true;
-  const file: any = await new Promise((resolve, reject) => {
-    form.parse(req, (err, _, parsed) => {
-      if (err) reject();
-      resolve(parsed.file);
+  try {
+    const file: any = await new Promise((resolve, reject) => {
+      form.parse(req, (err, _, parsed) => {
+        if (err) reject();
+        resolve(parsed.file);
+      });
     });
-  });
-  console.log('File', file);
-  console.log(Object.keys(file));
-  const fileName = path.basename(file.path);
-  const message = await prismaClient.message.create({
-    data: { textBody: fileName, imageName: fileName, userId: session.user.id },
-  });
-  res.status(200).send({ message });
+    console.log('File', file);
+    console.log(Object.keys(file));
+    const fileName = path.basename(file.path);
+    const message = await prismaClient.message.create({
+      data: { textBody: fileName, imageName: fileName, userId: session.user.id },
+    });
+    res.status(200).send({ message });
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ err: e });
+  }
 };
 
 export default handler;

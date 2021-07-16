@@ -177,7 +177,7 @@ export default function App() {
   };
   const handleClose = () => setMenuOpen(false);
   const handleOpen = () => setMenuOpen(true);
-  const {} = getRootProps();
+  const mediaUrl = process.env.NEXT_PUBLIC_ASSETS_URL || 'https://media.paste.lbat.ch';
 
   if (!loading && !session) router.push('/api/auth/signin');
 
@@ -272,10 +272,7 @@ export default function App() {
             {messages.map((message) => (
               <MessageBubble key={message.id}>
                 {message.imageName ? (
-                  <MessageImage
-                    src={`${process.env.NEXT_PUBLIC_ASSETS_URL}/${message.imageName}`}
-                    alt={message.textBody}
-                  />
+                  <MessageImage src={`${mediaUrl}/${message.imageName}`} alt={message.textBody} />
                 ) : (
                   message.textBody
                 )}
