@@ -144,7 +144,7 @@ export default function App() {
     const file = acceptedFiles[0];
     setUploadedImg(file);
   }, []);
-  const { getRootProps, getInputProps, inputRef } = useDropzone({ onDrop, accept: 'image/*' });
+  const { getInputProps, inputRef } = useDropzone({ onDrop, accept: 'image/*' });
 
   const refresh = () => {
     return fetch('/api/messages')
@@ -168,7 +168,10 @@ export default function App() {
         setUploadedImg(null);
         refresh();
       })
-      .catch((err) => setUploadedImg(null));
+      .catch((err) => {
+        console.error(err);
+        setUploadedImg(null);
+      });
   };
 
   const onSubmit = (data: FormValues) => {
@@ -198,7 +201,9 @@ export default function App() {
 
   if (!loading && !session) router.push('/api/auth/signin');
 
-  const filteredMessages = searchText.length ? messages.filter((m) => m.textBody.includes(searchText)) : messages;
+  const filteredMessages = searchText.length
+    ? messages.filter((m) => m.textBody.toLowerCase().includes(searchText.toLowerCase()))
+    : messages;
   return (
     <Box height="100%">
       <Head>
