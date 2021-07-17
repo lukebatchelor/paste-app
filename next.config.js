@@ -12,6 +12,9 @@ module.exports = module.exports = (phase) => {
       console.error('Are you missing a .env.local file?');
       process.exit(1);
     }
+  } else {
+    // if we are building the static server, we might be in CI and need to set some env vars
+    if (!process.env.NEXT_PUBLIC_ASSETS_URL) process.env.NEXT_PUBLIC_ASSETS_URL = 'https://media.paste.lbat.ch';
   }
 
   return withPWA({

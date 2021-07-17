@@ -12,15 +12,12 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-  debug: true,
+  debug: false,
   adapter: PrismaAdapter(prisma),
   callbacks: {
     session: (session, user) => {
       const { name, email, image, id } = user as User & { id: string };
       return { ...session, user: { name, email, image, id } };
-    },
-    redirect: async (url, baseUrl) => {
-      return url.startsWith(baseUrl) ? Promise.resolve(url) : Promise.resolve(baseUrl);
     },
   },
 });

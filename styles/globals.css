@@ -1,3 +1,7 @@
+:root {
+  --main-color-light: #d1c4e9;
+}
+
 html,
 body {
   padding: 0;

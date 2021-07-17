@@ -188,9 +188,8 @@ export default function App() {
     if (file) setUploadedImg(file);
     paste.images = [];
   };
-  const mediaUrl = process.env.NEXT_PUBLIC_ASSETS_URL || 'https://media.paste.lbat.ch';
+  const mediaUrl = process.env.NEXT_PUBLIC_ASSETS_URL;
 
-  console.log({ loading, session });
   if (!loading && !session) router.push('/api/auth/signin');
 
   return (

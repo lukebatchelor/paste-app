@@ -1,12 +1,21 @@
+import React from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSession, signIn } from 'next-auth/client';
+import { Box, Container, Paper, styled, Typography, Button } from '@material-ui/core';
 import { useRouter } from 'next/router';
-import styles from '../styles/Home.module.css';
-import { Row } from '../components/Box';
-import React from 'react';
-import { Button } from '../components/Button';
-import { useSession } from 'next-auth/client';
+
+const MyPaper = styled(Paper)({
+  padding: '1rem',
+  background: 'var(--main-color-light)',
+});
+const LoginButton = styled(Button)({
+  fontSize: '1.5rem',
+  color: 'var(--main-color-light)',
+  borderColor: 'var(--main-color-light)',
+  textDecoration: 'none !important',
+});
 
 export default function Home() {
   const [session, loading] = useSession();
@@ -15,28 +24,33 @@ export default function Home() {
   if (session) router.push('/app');
 
   return (
-    <div className={styles.container}>
+    <Box height="100%">
       <Head>
         <title>Paste App</title>
         <meta name="description" content="A simple app for sharing your clipboard between two devices" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <Row justify="center" align="center">
-          <Image src="/android-chrome-192x192.png" alt="Paste App logo" width="60px" height="60px"></Image>{' '}
-          <h1 className={styles.title}>Paste App</h1>
-        </Row>
+      <Container sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-around', height: '100%' }}>
+        <Typography variant="h3" align="center" my={2} sx={{ color: 'var(--main-color-light)' }}>
+          Paste App
+        </Typography>
 
-        <p>A super simple app for sharing your clipboard between devices.</p>
-        <p>Simply login, paste your text or image, then log in on your other device to pick up your paste!</p>
-        <p>Pastes are automatically deleted after 24 hours unless you explicitly save them</p>
-        <Row>
-          <Link href="/api/auth/signin">
-            <Button>Log in</Button>
-          </Link>
-        </Row>
-      </main>
-    </div>
+        <MyPaper sx={{ my: '16px' }}>
+          <p>A super simple app for sharing your clipboard between devices.</p>
+          <p>Simply login, paste your text or image, then log in on your other device to pick up your paste!</p>
+          <p>Pastes are automatically deleted after 24 hours unless you explicitly save them</p>
+        </MyPaper>
+        <Box display="flex" justifyContent="center">
+          <LoginButton
+            variant="outlined"
+            size="medium"
+            onClick={() => signIn('google', { callbackUrl: `${window?.location?.origin}/app` })}
+          >
+            Sign In
+          </LoginButton>
+        </Box>
+      </Container>
+    </Box>
   );
 }
