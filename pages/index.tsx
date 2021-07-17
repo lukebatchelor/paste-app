@@ -1,10 +1,8 @@
-import React from 'react';
+import { Box, Button, Container, Paper, styled, Typography } from '@material-ui/core';
+import { signIn, useSession } from 'next-auth/client';
 import Head from 'next/head';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useSession, signIn } from 'next-auth/client';
-import { Box, Container, Paper, styled, Typography, Button } from '@material-ui/core';
 import { useRouter } from 'next/router';
+import React from 'react';
 
 const MyPaper = styled(Paper)({
   padding: '1rem',
