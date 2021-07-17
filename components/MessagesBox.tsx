@@ -25,9 +25,16 @@ const MessageImage = styled('img')({
 type MessagesBoxProps = {
   messages: Array<Message>;
   endOfMessagesRef: React.Ref<HTMLDivElement>;
+  onMessageClick: (messageId: string) => void;
 };
 export function MessagesBox(props: MessagesBoxProps) {
-  const { messages, endOfMessagesRef } = props;
+  const { messages, endOfMessagesRef, onMessageClick } = props;
+
+  const handleMessageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { target } = e;
+    const messageId = (target as HTMLDivElement).dataset['messageId'];
+    onMessageClick(messageId);
+  };
 
   return (
     <Grid
@@ -47,27 +54,39 @@ export function MessagesBox(props: MessagesBoxProps) {
         flexDirection="column"
         justifyContent="flex-end"
         alignItems="flex-end"
+        onClick={handleMessageClick}
       >
-        {messages.map((message) => (
-          <MessageBubble key={message.id}>
-            {message.imageName ? (
-              <MessageImage src={`${MEDIA_URL}/${message.imageName}`} alt={message.textBody} />
-            ) : validURL(message.textBody) ? (
-              <a href={message.textBody} target="_blank" rel="noopener noreferrer">
-                {message.textBody}
-              </a>
-            ) : !!isCodeBlock(message.textBody) ? (
-              <pre>
-                <code>{isCodeBlock(message.textBody)[1]}</code>
-              </pre>
-            ) : (
-              message.textBody
-            )}
-          </MessageBubble>
-        ))}
+        {messages.map((message) => createMessageBubble(message))}
         <Box ref={endOfMessagesRef}></Box>
       </Box>
     </Grid>
+  );
+}
+
+export function createMessageBubble(message: Message) {
+  let messageBody: React.ReactNode = message.textBody;
+  if (message.imageName) {
+    messageBody = (
+      <MessageImage src={`${MEDIA_URL}/${message.imageName}`} alt={message.textBody} data-message-id={message.id} />
+    );
+  } else if (validURL(message.textBody)) {
+    messageBody = (
+      <a href={message.textBody} target="_blank" rel="noopener noreferrer">
+        {message.textBody}
+      </a>
+    );
+  } else if (!!isCodeBlock(message.textBody)) {
+    messageBody = (
+      <pre data-message-id={message.id}>
+        <code data-message-id={message.id}>{isCodeBlock(message.textBody)[1]}</code>
+      </pre>
+    );
+  }
+
+  return (
+    <MessageBubble key={message.id} data-message-id={message.id}>
+      {messageBody}
+    </MessageBubble>
   );
 }
 

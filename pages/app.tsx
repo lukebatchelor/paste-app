@@ -1,17 +1,18 @@
 import { Gluejar } from '@charliewilco/gluejar';
-import { Box, Fab, Grid, Paper, TextField, Typography } from '@material-ui/core';
+import { Box, Fab, Grid, Paper, TextField, Typography, Backdrop, CircularProgress } from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import SendIcon from '@material-ui/icons/Send';
 import { Message } from '@prisma/client';
 import { useSession } from 'next-auth/client';
+import mitt from 'next/dist/next-server/lib/mitt';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Controller, useForm } from 'react-hook-form';
 import { AppBar } from '../components/AppBar';
-import { MessagesBox } from '../components/MessagesBox';
+import { createMessageBubble, MessagesBox } from '../components/MessagesBox';
 
 type FormValues = {
   messageText: string;
@@ -55,7 +56,9 @@ export default function App() {
   const searchText = watch('searchText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<HTMLDivElement>(null);
+  const [backdropOpen, setBackdropOpen] = useState<boolean>(true);
   const [uploadedImg, setUploadedImg] = useState<File>(null);
+  const [selectedMessage, setSelectedMessage] = useState<Message>(null);
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setUploadedImg(file);
@@ -117,6 +120,9 @@ export default function App() {
   const filteredMessages = searchText.length
     ? messages.filter((m) => m.textBody.toLowerCase().includes(searchText.toLowerCase()))
     : messages;
+  const handleBackdropClose = () => setSelectedMessage(null);
+  const onMessageClick = (messageId: string) => setSelectedMessage(messages.find((m) => m.id === messageId));
+
   return (
     <Box height="100%">
       <Head>
@@ -133,7 +139,7 @@ export default function App() {
 
       <Grid container direction="column" justifyContent="space-between" flexWrap="nowrap" p={2} height={'100%'}>
         <Grid item mt="70px" />
-        <MessagesBox messages={filteredMessages} endOfMessagesRef={endOfMessagesRef} />
+        <MessagesBox messages={filteredMessages} endOfMessagesRef={endOfMessagesRef} onMessageClick={onMessageClick} />
         <Grid item mt={2} display="flex" alignItems="center">
           <Form noValidate onSubmit={handleSubmit(onSubmit)}>
             <Controller
@@ -167,6 +173,13 @@ export default function App() {
         </Grid>
       </Grid>
       <Gluejar onPaste={onPaste} onError={(err) => console.error(err)} container={appRef.current} />
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={!!selectedMessage}
+        onClick={handleBackdropClose}
+      >
+        {selectedMessage && createMessageBubble(selectedMessage)}
+      </Backdrop>
     </Box>
   );
 }
