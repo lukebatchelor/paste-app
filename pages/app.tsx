@@ -77,6 +77,7 @@ export default function App() {
     refresh();
     const params = new URLSearchParams(window.location.search);
     if (params.has('title') || (params.has('text') && params.has('url'))) {
+      alert(JSON.stringify({ title: params.get('title'), text: params.get('text'), url: params.get('url') }, null, 2));
       const messageStr = [params.get('title'), params.get('text'), params.get('url')].filter(Boolean).join('\n');
       setValue('messageText', messageStr);
     }
