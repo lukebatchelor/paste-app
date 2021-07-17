@@ -27,7 +27,7 @@ import { Message } from '.prisma/client';
 import { styled, alpha } from '@material-ui/core/styles';
 
 import { Controller, useForm } from 'react-hook-form';
-import { useSession } from 'next-auth/client';
+import { signOut, useSession } from 'next-auth/client';
 import { useRouter } from 'next/router';
 import { PersonAdd, Settings, Logout } from '@material-ui/icons';
 import { useDropzone } from 'react-dropzone';
@@ -190,6 +190,7 @@ export default function App() {
   };
   const mediaUrl = process.env.NEXT_PUBLIC_ASSETS_URL || 'https://media.paste.lbat.ch';
 
+  console.log({ loading, session });
   if (!loading && !session) router.push('/api/auth/signin');
 
   return (
@@ -236,7 +237,7 @@ export default function App() {
           >
             <MenuItem>Profile</MenuItem>
             <MenuItem>Secret Pastes</MenuItem>
-            <MenuItem>Logout</MenuItem>
+            <MenuItem onClick={() => signOut({ redirect: true, callbackUrl: '/' }) && handleClose()}>Logout</MenuItem>
           </Menu>
           <IconButton
             size="large"

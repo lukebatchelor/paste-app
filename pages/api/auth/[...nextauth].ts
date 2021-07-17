@@ -12,7 +12,7 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-  debug: false,
+  debug: true,
   adapter: PrismaAdapter(prisma),
   callbacks: {
     session: (session, user) => {

@@ -18,6 +18,7 @@ module.exports = module.exports = (phase) => {
     reactStrictMode: true,
     pwa: {
       dest: 'public',
+      disable: phase === PHASE_DEVELOPMENT_SERVER,
     },
   });
 };

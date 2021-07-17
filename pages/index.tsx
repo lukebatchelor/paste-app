@@ -9,7 +9,6 @@ import { Button } from '../components/Button';
 import { useSession } from 'next-auth/client';
 
 export default function Home() {
-  const login = () => {};
   const [session, loading] = useSession();
   const router = useRouter();
 
