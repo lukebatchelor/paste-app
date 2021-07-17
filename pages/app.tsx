@@ -36,10 +36,12 @@ import { Gluejar } from '@charliewilco/gluejar';
 
 type FormValues = {
   messageText: string;
+  searchText: string;
 };
 
 const defaultValues: FormValues = {
   messageText: '',
+  searchText: '',
 };
 
 type View = 'TEXT' | 'IMAGES';
@@ -120,6 +122,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     '&:focus': {
       width: '17ch',
     },
+    '&:not(:placeholder-shown)': {
+      width: '17ch',
+    },
   },
 }));
 
@@ -129,6 +134,7 @@ export default function App() {
   const router = useRouter();
   const { handleSubmit, control, reset, watch, setValue } = useForm<FormValues>({ defaultValues });
   const messageText = watch('messageText');
+  const searchText = watch('searchText');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const appRef = useRef<HTMLDivElement>(null);
@@ -192,6 +198,7 @@ export default function App() {
 
   if (!loading && !session) router.push('/api/auth/signin');
 
+  const filteredMessages = searchText.length ? messages.filter((m) => m.textBody.includes(searchText)) : messages;
   return (
     <Box height="100%">
       <Head>
@@ -255,7 +262,19 @@ export default function App() {
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
-            <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
+            <Controller
+              control={control}
+              name={'searchText'}
+              render={({ onChange, onBlur, value }) => (
+                <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ 'aria-label': 'search' }}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value || ''}
+                />
+              )}
+            />
           </Search>
         </Toolbar>
       </AppBar>
@@ -280,7 +299,7 @@ export default function App() {
             justifyContent="flex-end"
             alignItems="flex-end"
           >
-            {messages.map((message) => (
+            {filteredMessages.map((message) => (
               <MessageBubble key={message.id}>
                 {message.imageName ? (
                   <MessageImage src={`${mediaUrl}/${message.imageName}`} alt={message.textBody} />
