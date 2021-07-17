@@ -75,7 +75,12 @@ export default function App() {
   };
   useEffect(() => {
     refresh();
-  }, []);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('title') || (params.has('text') && params.has('url'))) {
+      const messageStr = [params.get('title'), params.get('text'), params.get('url')].filter(Boolean).join('\n');
+      setValue('messageText', messageStr);
+    }
+  }, [setValue]);
 
   const openUploadModal = () => inputRef.current.click();
   const uploadImage = () => {
